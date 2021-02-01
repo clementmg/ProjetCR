@@ -4,7 +4,6 @@ import numpy as np
 
 print("Welcome to our quizz country game")
 
-
 #idée: filtrer les pays avec moins de 1 millions habitants comme pays de départ, pour éviter les petites îles. 
 possible_start_countries = #SPARQL
 
