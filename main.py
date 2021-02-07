@@ -80,7 +80,7 @@ def get_country_data(country_id):
 print("Bienvenue dans notre jeu de Quizz sur les pays du monde!")
 start_country = get_random_country()
 DIFFICULTY_LEVEL = 4 
-possible_end_countries = get_k_neighbours(start_country["id"],DIFFICULTY_LEVEL,True)
+possible_end_countries = get_k_distance_neighbours(start_country["id"],DIFFICULTY_LEVEL,True)
 end_country = random.choice(possible_end_countries)
 
 
@@ -142,7 +142,7 @@ while current_country["label"] != end_country["label"]:
     print('--------')
     print(f"\nVous vous trouvez actuellement dans ce pays : {current_country['label']}")
     print('--------')
-    neighbour_countries = get_k_neighbours(current_country["id"],1)
+    neighbour_countries = get_k_distance_neighbours(current_country["id"],1)
 
     guessed_country = input("\nPouvez vous trouver un pays voisin? Si vous avez besoin d'aide, répondez 'non'\n>>") 
     if guessed_country == "non":
