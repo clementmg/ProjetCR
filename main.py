@@ -26,14 +26,14 @@ def sparql_query(endpoint_url, query):
     return  sparql.query().convert()["results"]["bindings"]
 
 
-def get_k_distance_neighbours(country_id,k,filter_small=False):
-    k_neighbour_relation = "/".join(["wdt:P47"]*k)
+def get_k_distant_neighbours(country_id,k,filter_small=False):
+    k_distant_neighbour_relation = "/".join(["wdt:P47"]*k)
     query = f"""SELECT DISTINCT ?countryLabel ?country
                                 (GROUP_CONCAT(DISTINCT(?altLabel); separator = ";") AS ?altLabel_list)  
                 WHERE {{
                     ?country wdt:P31 wd:Q3624078;
                              wdt:P1082 ?population;
-                             {k_neighbour_relation} {country_id}.
+                             {k_distant_neighbour_relation} {country_id}.
                     OPTIONAL {{ ?country  skos:altLabel ?altLabel. FILTER (lang(?altLabel) = "fr") }}
                     { "FILTER(?population > 1000000)" if not filter_small else ""}
                     SERVICE wikibase:label {{ bd:serviceParam wikibase:language "fr". }}
@@ -80,7 +80,7 @@ def get_country_data(country_id):
 print("Bienvenue dans notre jeu de Quizz sur les pays du monde!")
 start_country = get_random_country()
 DIFFICULTY_LEVEL = 4 
-possible_end_countries = get_k_distance_neighbours(start_country["id"],DIFFICULTY_LEVEL,True)
+possible_end_countries = get_k_distant_neighbours(start_country["id"],DIFFICULTY_LEVEL,True)
 end_country = random.choice(possible_end_countries)
 
 
@@ -109,7 +109,7 @@ def get_curr(country_data):
     return country_data["monnaie"]
 
 def evaluate_pop(guess, answer, lb=0.6, ub=1.8):
-    guess_number = int(guess)
+    guess_number = float(guess)
     if guess_number*lb < answer < guess_number*ub:
         print(f"Presque ! La réponse exacte était: {answer} millions, mais on vous l'accorde.")
         return True
@@ -142,7 +142,7 @@ while current_country["label"] != end_country["label"]:
     print('--------')
     print(f"\nVous vous trouvez actuellement dans ce pays : {current_country['label']}")
     print('--------')
-    neighbour_countries = get_k_distance_neighbours(current_country["id"],1)
+    neighbour_countries = get_k_distant_neighbours(current_country["id"],1)
 
     guessed_country = input("\nPouvez vous trouver un pays voisin? Si vous avez besoin d'aide, répondez 'non'\n>>") 
     if guessed_country == "non":
@@ -198,7 +198,7 @@ while current_country["label"] != end_country["label"]:
     
     print(f"\nBravo! Vous avancez donc d'une case!")
 
-if current_country["label"] == end_country["label"]:
+if current_country["id"] == end_country["id"]:
     print(f"Félicitations! Vous avez atteint votre destination en {N_count} coups")
 
 

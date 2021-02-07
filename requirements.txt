@@ -1,1 +1,1 @@
-sparqlwrapper
+sparqlwrapper==1.8.5
