@@ -25,8 +25,8 @@ def sparql_query(endpoint_url, query):
     sparql.setReturnFormat(JSON)
     return  sparql.query().convert()["results"]["bindings"]
 
-#pas compris le k
-def get_k_neighbours(country_id,k,filter_small=False):
+
+def get_k_distance_neighbours(country_id,k,filter_small=False):
     k_neighbour_relation = "/".join(["wdt:P47"]*k)
     query = f"""SELECT DISTINCT ?countryLabel ?country
                                 (GROUP_CONCAT(DISTINCT(?altLabel); separator = ";") AS ?altLabel_list)  
@@ -43,7 +43,6 @@ def get_k_neighbours(country_id,k,filter_small=False):
     return country_result_mapping(sparql_query(endpoint_url,query))
 
 
-#Mettre une min pop en paramètres
 def get_random_country():
     query = """SELECT DISTINCT ?countryLabel ?country WHERE {   
                 ?country wdt:P31 wd:Q3624078;
@@ -79,17 +78,10 @@ def get_country_data(country_id):
 
 
 print("Bienvenue dans notre jeu de Quizz sur les pays du monde!")
-
-#idée: filtrer les pays avec moins de 1 millions habitants comme pays de départ, pour éviter les petites îles. 
 start_country = get_random_country()
-
-
-DIFFICULTY_LEVEL = 4 #sinon le jeu est trop long
-
-#choisir un pays du même continent? si possible
+DIFFICULTY_LEVEL = 4 
 possible_end_countries = get_k_neighbours(start_country["id"],DIFFICULTY_LEVEL,True)
 end_country = random.choice(possible_end_countries)
-
 
 
 print(f"Votre pays de départ est: {start_country['label']}")
@@ -97,29 +89,9 @@ print(f"Votre pays dans lequel vous devez vous rendre: {end_country['label']}\n 
 
 current_country = start_country
 
-
 def normalize_string(string):
     ascii_string = unicodedata.normalize('NFD', string).encode('ascii', 'ignore').decode()
     return re.sub('[^a-zA-Z]+', '', ascii_string).lower()
-
-#définitions de 4 fonctions permettant de comparer la réponse à la question à la requête
-# def compare_pop(guess, country_data, lb=0.6, ub=1.8):
-#     guess_number = int(guess)
-#     if guess_number*lb < int(country_data["population"] / 1000000) < guess_number*ub:
-#         print(f"Presque ! La réponse exacte était: {np.round(country_data['population'] / 1000000, 2)} millions, mais on vous l'accorde.")
-#         return True
-#     return False
-
-
-# def compare_lang(guess, country_data):
-#     return normalize_string(guess) in [ normalize_string(language) for language in country_data["langues"]]
-
-
-# def compare_cap(guess, country_data):
-#     return normalize_string(guess) ==  normalize_string(country_data["capitale"])
-
-# def compare_curr(guess, country_data):
-#     return normalize_string(guess) ==  normalize_string(country_data["monnaie"])
 
 
 def get_pop(country_data):
@@ -170,7 +142,6 @@ while current_country["label"] != end_country["label"]:
     print('--------')
     print(f"\nVous vous trouvez actuellement dans ce pays : {current_country['label']}")
     print('--------')
-    #trouver les pays voisins
     neighbour_countries = get_k_neighbours(current_country["id"],1)
 
     guessed_country = input("\nPouvez vous trouver un pays voisin? Si vous avez besoin d'aide, répondez 'non'\n>>") 
@@ -202,7 +173,7 @@ while current_country["label"] != end_country["label"]:
         print("\nVoici la liste des réponses possibles. On espère que cela vous aide. Alors?\n")
 
         possible_responses = [questions_dict[rand_question][0](get_country_data(country["id"])) for country in neighbour_countries]
-        if type(possible_responses[0]) == list: #Alors il faut flatten, il s'agit des langues
+        if type(possible_responses[0]) == list: 
             possible_responses = [val for sublist in possible_responses for val in sublist]
 
         possible_responses = list(set(possible_responses))
