@@ -198,7 +198,7 @@ while current_country["label"] != end_country["label"]:
     
     print(f"\nBravo! Vous avancez donc d'une case!")
 
-if current_country["label"] != end_country["label"]:
+if current_country["label"] == end_country["label"]:
     print(f"Félicitations! Vous avez atteint votre destination en {N_count} coups")
 
 
